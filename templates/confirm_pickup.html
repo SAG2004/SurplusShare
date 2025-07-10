@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block content %}
+<section class="dashboard">
+  <div class="container">
+    <div class="confirmation-card">
+      <div class="confirmation-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>Confirm Pickup</h2>
+      <p>You're about to confirm that you've picked up:</p>
+
+      <div class="listing-details">
+        <h3>{{ request.listing.title }}</h3>
+        <p><strong>Donor:</strong> {{ request.listing.donor.username }}</p>
+        <p>
+          <strong>Scheduled Pickup:</strong> {{
+          request.scheduled_pickup.strftime('%B %d, %Y at %I:%M %p') }}
+        </p>
+        <p>
+          <strong>Pickup Location:</strong> {{ request.listing.pickup_location
+          }}
+        </p>
+      </div>
+
+      <div class="confirmation-actions">
+        <a
+          href="{{ url_for('confirm_pickup', request_id=request.id) }}"
+          class="btn btn-success"
+        >
+          Yes, I've picked up the food
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block content %}
+<section class="form-section">
+  <div class="container">
+    <div class="form-container">
+      <h2>Schedule Pickup for "{{ request.listing.title }}"</h2>
+      <p>Recipient: {{ request.recipient.username }}</p>
+
+      <form
+        method="POST"
+        action="{{ url_for('schedule_pickup', request_id=request.id) }}"
+      >
+        <div class="form-group">
+          <label for="scheduled_pickup">Pickup Date & Time</label>
+          <input
+            type="datetime-local"
+            id="scheduled_pickup"
+            name="scheduled_pickup"
+            value="{{ default_time }}"
+            min="{{ datetime.now().strftime('%Y-%m-%dT%H:%M') }}"
+            required
+          />
+          <small
+            >Select a date and time for the recipient to pick up the food</small
+          >
+        </div>
+
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary">Schedule Pickup</button>
+          <a href="{{ url_for('manage_requests') }}" class="btn btn-outline"
+            >Cancel</a
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

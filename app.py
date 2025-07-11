@@ -2,13 +2,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import math
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///greenplate.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:abdullah2004@localhost/surplusshare'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -518,13 +519,15 @@ def messages():
 
 @app.route('/schedule_pickup/<int:request_id>', methods=['POST'])
 def schedule_pickup(request_id):
-    req = Request.query.get_or_404(request_id)
+    req = FoodRequest.query.get_or_404(request_id)  # fix model name
     if req.status != 'accepted':
         flash('Only accepted requests can be scheduled.', 'warning')
         return redirect(url_for('manage_requests'))
+
     req.status = 'scheduled'
-    req.scheduled_at = datetime.utcnow()
+    req.scheduled_pickup = datetime.now(timezone.utc)  # fix field name + timezone
     db.session.commit()
+
     flash('Pickup successfully scheduled!', 'success')
     return redirect(url_for('manage_requests'))
 
@@ -708,7 +711,7 @@ if __name__ == '__main__':
                 description="Assorted fresh breads from today's baking",
                 quantity="20 loaves",
                 category="Bakery",
-                expiry_date=datetime.utcnow() + timedelta(days=1),
+                expiry_date=datetime.now(timezone.utc) + timedelta(days=1),
                 donor_id=donor1.id,
                 pickup_location="Ameerpet, Hyderabad",
                 latitude=17.4375,
@@ -720,7 +723,7 @@ if __name__ == '__main__':
                 description="Pre-made sandwiches from today's service",
                 quantity="15 sandwiches",
                 category="Prepared Meals",
-                expiry_date=datetime.utcnow() + timedelta(days=1),
+                expiry_date=datetime.now(timezone.utc) + timedelta(days=1),
                 donor_id=donor2.id,
                 pickup_location="Banjara Hills, Hyderabad",
                 latitude=17.4123,
@@ -732,7 +735,7 @@ if __name__ == '__main__':
                 description="Fresh vegetables surplus from delivery",
                 quantity="5 boxes",
                 category="Produce",
-                expiry_date=datetime.utcnow() + timedelta(days=3),
+                expiry_date=datetime.now(timezone.utc) + timedelta(days=3),
                 donor_id=donor1.id,
                 pickup_location="Ameerpet, Hyderabad",
                 latitude=17.4375,

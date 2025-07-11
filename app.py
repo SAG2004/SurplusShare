@@ -745,4 +745,6 @@ if __name__ == '__main__':
             db.session.add_all([listing1, listing2, listing3])
             db.session.commit()
 
+if __name__ == "__main__":
     app.run(debug=True)
+

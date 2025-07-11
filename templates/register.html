@@ -1,0 +1,66 @@
+{% extends "base.html" %} {% block content %}
+<section class="form-section" style="background: #edffcc">
+  <div class="container">
+    <div class="form-container">
+      <h2>Create Your Account</h2>
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+          <label>I am a:</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="role" value="donor" required />
+              Food Donor (Business)
+            </label>
+            <label>
+              <input type="radio" name="role" value="charity" />
+              Charity/Organization
+            </label>
+            <label>
+              <input type="radio" name="role" value="recipient" />
+              Individual Recipient
+            </label>
+          </div>
+        </div>
+        <div class="form-group" id="organization-field" style="display: none">
+          <label for="organization">Organization Name</label>
+          <input type="text" id="organization" name="organization" />
+        </div>
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" required />
+          <small>Used to find nearby matches</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+      <p class="form-footer">
+        Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('input[name="role"]').forEach((radio) => {
+    radio.addEventListener("change", function () {
+      const orgField = document.getElementById("organization-field");
+      if (this.value === "donor" || this.value === "charity") {
+        orgField.style.display = "block";
+      } else {
+        orgField.style.display = "none";
+      }
+    });
+  });
+</script>
+{% endblock %}

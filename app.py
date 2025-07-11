@@ -1,17 +1,28 @@
-# app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
 import os
 import math
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:abdullah2004@localhost/surplusshare'
+
+# Use DATABASE_URL from environment or fallback to local PostgreSQL for dev
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL',
+    'postgresql://postgres:password@localhost/surplusshare'
+)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
+
 
 # Database Models
 class User(db.Model):

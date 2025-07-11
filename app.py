@@ -15,10 +15,11 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 # Use DATABASE_URL from environment or fallback to local PostgreSQL for dev
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    'DATABASE_URL',
-    'postgresql://postgres:password@localhost/surplusshare'
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    "postgresql://surplus_share_database_user:HL3lKWrlqgy36ivnmlm9VgXeLmeXN6Io"
+    "@dpg-d1oi29re5dus73e8ddc0-a.singapore-postgres.render.com:5432/surplus_share_database"
 )
+
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

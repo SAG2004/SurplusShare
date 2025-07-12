@@ -92,8 +92,8 @@ with app.app_context():
         expiry_date=datetime.now(timezone.utc) + timedelta(days=3),
         donor_id=donor1.id,
         pickup_location="Golconda, Hyderabad",
-        latitude=17.4375,
-        longitude=78.4483
+        latitude=17.3833,
+        longitude=78.4011
     )
 
     db.session.add_all([listing1, listing2, listing3])

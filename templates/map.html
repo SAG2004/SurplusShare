@@ -20,31 +20,52 @@
 
     <div class="map-container">
       <div id="map"></div>
-      <!-- ✅ Keep only this one -->
     </div>
 
     <div class="map-legend">
       <h3>Map Legend</h3>
-      <div class="legend-item">
-        <div class="legend-color legend-user"></div>
+
+      <div class="legend-item legend-user">
+        <div class="legend-icon">
+          <i class="fas fa-user"></i>
+        </div>
         <span>Your Location</span>
       </div>
+
       {% if user.role == 'donor' %}
-      <div class="legend-item">
-        <div class="legend-color legend-recipient"></div>
+      <div class="legend-item legend-recipient">
+        <div class="legend-icon">
+          <i class="fas fa-user"></i>
+        </div>
         <span>Recipient (Individual)</span>
       </div>
-      <div class="legend-item">
-        <div class="legend-color legend-charity"></div>
+
+      <div class="legend-item legend-charity">
+        <div class="legend-icon">
+          <i class="fas fa-hands-helping"></i>
+        </div>
         <span>Charity/Organization</span>
       </div>
       {% else %}
-      <div class="legend-item">
-        <div class="legend-color legend-listing"></div>
+      <div class="legend-item legend-listing">
+        <div class="legend-icon">
+          <i class="fas fa-utensils"></i>
+        </div>
         <span>Food Listing</span>
       </div>
       {% endif %}
     </div>
   </div>
 </section>
+
+<script>
+  const userData = {
+      latitude: {{ user.latitude|default(17.3850)|tojson }},
+      longitude: {{ user.longitude|default(78.4867)|tojson }},
+      address: {{ user.address|default("Hyderabad")|tojson }}
+  };
+
+  const listingsData = {{ listings|tojson|safe }};
+  const recipientsData = {{ recipients|tojson|safe }};
+</script>
 {% endblock %}

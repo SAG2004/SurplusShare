@@ -9,7 +9,13 @@
     margin-bottom: 40px;
     border: 1px solid var(--border-color);
 }
+.leaflet-container {
+    z-index: 0;
+}
 
+.leaflet-control {
+    z-index: 500;
+}
 #map {
     height: 500px;
     width: 100%;

@@ -91,7 +91,7 @@ with app.app_context():
         category="Produce",
         expiry_date=datetime.now(timezone.utc) + timedelta(days=3),
         donor_id=donor1.id,
-        pickup_location="Ameerpet, Hyderabad",
+        pickup_location="Golconda, Hyderabad",
         latitude=17.4375,
         longitude=78.4483
     )

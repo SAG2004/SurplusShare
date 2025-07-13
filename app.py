@@ -313,34 +313,49 @@ def dashboard():
     if 'user_id' not in session:
         flash('Please login to access this page', 'warning')
         return redirect(url_for('login'))
-   
+
     user = User.query.get(session['user_id'])
-   
+
     if user.role == 'donor':
         listings = FoodListing.query.filter_by(donor_id=user.id).all()
         return render_template('dashboard_donor.html', user=user, listings=listings)
     else:
         # For recipients/charities - show nearby available listings
-        available_listings = FoodListing.query.filter_by(status='available').all()
+        from sqlalchemy import exists, and_
+
+        available_listings = FoodListing.query.filter(
+            FoodListing.status == 'available',
+            ~exists().where(
+                and_(
+                    FoodRequest.listing_id == FoodListing.id,
+                    FoodRequest.recipient_id == user.id,
+                    FoodRequest.status == 'rejected'
+                )
+            )
+        ).all()
+
         user_lat, user_lon = user.latitude, user.longitude
-       
+
         # Calculate distance for each listing
         for listing in available_listings:
             listing.distance = round(calculate_distance(
                 user_lat, user_lon,
                 listing.latitude, listing.longitude
             ), 1)
-       
+
         # Sort by distance
         available_listings.sort(key=lambda x: x.distance)
-       
+
         # Get user's requests
         requests = FoodRequest.query.filter_by(recipient_id=user.id).all()
-       
-        return render_template('dashboard_recipient.html',
-                              user=user,
-                              listings=available_listings,
-                              requests=requests)
+
+        return render_template(
+            'dashboard_recipient.html',
+            user=user,
+            listings=available_listings,
+            requests=requests
+        )
+
 
 @app.route('/create_listing', methods=['GET', 'POST'])
 def create_listing():
@@ -439,7 +454,12 @@ def manage_requests():
     user = User.query.get(session['user_id'])
     listings = FoodListing.query.filter_by(donor_id=user.id).all()
     listing_ids = [listing.id for listing in listings]
-    requests = FoodRequest.query.filter(FoodRequest.listing_id.in_(listing_ids)).all()
+
+    # Show only requests on these listings, and exclude rejected & completed
+    requests = FoodRequest.query.filter(
+        FoodRequest.listing_id.in_(listing_ids),
+        FoodRequest.status.notin_(['rejected', 'completed'])
+    ).all()
    
     return render_template('manage_requests.html', requests=requests)
 
@@ -628,11 +648,10 @@ def map_view():
 def get_locations():
     if 'user_id' not in session:
         return jsonify([])
-   
+
     user = User.query.get(session['user_id'])
-   
     locations = []
-   
+
     if user.role == 'donor':
         # Get recipients and charities
         entities = User.query.filter(User.role.in_(['recipient', 'charity'])).all()
@@ -647,8 +666,20 @@ def get_locations():
                 'lon': entity.longitude
             })
     else:
-        # Get available food listings
-        listings = FoodListing.query.filter_by(status='available').all()
+        # For recipients: Get available listings excluding rejected ones
+        from sqlalchemy import exists, and_
+
+        listings = FoodListing.query.filter(
+            FoodListing.status == 'available',
+            ~exists().where(
+                and_(
+                    FoodRequest.listing_id == FoodListing.id,
+                    FoodRequest.recipient_id == user.id,
+                    FoodRequest.status == 'rejected'
+                )
+            )
+        ).all()
+
         for listing in listings:
             donor = User.query.get(listing.donor_id)
             locations.append({
@@ -663,7 +694,7 @@ def get_locations():
                 'lat': listing.latitude,
                 'lon': listing.longitude
             })
-   
+
     return jsonify(locations)
 
 if __name__ == "__main__":

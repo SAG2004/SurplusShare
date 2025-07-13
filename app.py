@@ -665,7 +665,7 @@ def get_locations():
     locations = []
 
     if user.role == 'donor':
-        # Get recipients and charities
+        # Donor sees recipients & charities on the map
         entities = User.query.filter(User.role.in_(['recipient', 'charity'])).all()
         for entity in entities:
             locations.append({
@@ -678,19 +678,12 @@ def get_locations():
                 'lon': entity.longitude
             })
     else:
-        # For recipients: Get available listings excluding rejected ones
-        from sqlalchemy import exists, and_
-
-        listings = FoodListing.query.filter(
-            FoodListing.status == 'available',
-            ~exists().where(
-                and_(
-                    FoodRequest.listing_id == FoodListing.id,
-                    FoodRequest.recipient_id == user.id,
-                    FoodRequest.status == 'rejected'
-                )
-            )
-        ).all()
+        # Recipient sees all listings that are NOT completed
+        listings = (
+            FoodListing.query
+            .filter(FoodListing.status != 'completed')
+            .all()
+        )
 
         for listing in listings:
             donor = User.query.get(listing.donor_id)

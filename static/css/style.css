@@ -1,7 +1,7 @@
 /* Base styles */
 :root {
     --primary: #3b5704;
-    --primary-dark: #ff9800;
+    --primary-dark: #388E3C;
     --secondary: #FFC107;
     --dark: #333;
     --light: #f8f9fa;
@@ -115,13 +115,13 @@ nav ul li a:hover {
 }
 /* Hero section */
 .hero {
-        background:#3b5704;
+        background: url("/static/img/hero-background.png") center/cover no-repeat;
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
         color: white;
         text-align: center;
-    }
+}
 
 .hero-content{
     display: flow-root;

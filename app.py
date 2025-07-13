@@ -317,37 +317,48 @@ def dashboard():
     user = User.query.get(session['user_id'])
 
     if user.role == 'donor':
-        listings = FoodListing.query.filter_by(donor_id=user.id).all()
-        return render_template('dashboard_donor.html', user=user, listings=listings)
-    else:
-        # For recipients/charities - show nearby available listings
-        from sqlalchemy import exists, and_
+        # Donor: show only their own listings that are NOT completed
+        listings = (
+            FoodListing.query
+            .filter_by(donor_id=user.id)
+            .filter(FoodListing.status != 'completed')
+            .all()
+        )
 
-        available_listings = FoodListing.query.filter(
-            FoodListing.status == 'available',
-            ~exists().where(
-                and_(
-                    FoodRequest.listing_id == FoodListing.id,
-                    FoodRequest.recipient_id == user.id,
-                    FoodRequest.status == 'rejected'
-                )
-            )
-        ).all()
+        return render_template(
+            'dashboard_donor.html',
+            user=user,
+            listings=listings
+        )
+
+    else:
+        # Recipient or Charity: show only available listings
+        available_listings = (
+            FoodListing.query
+            .filter_by(status='available')
+            .all()
+        )
 
         user_lat, user_lon = user.latitude, user.longitude
 
-        # Calculate distance for each listing
+        # Calculate distance to user for sorting
         for listing in available_listings:
-            listing.distance = round(calculate_distance(
-                user_lat, user_lon,
-                listing.latitude, listing.longitude
-            ), 1)
+            listing.distance = round(
+                calculate_distance(
+                    user_lat, user_lon,
+                    listing.latitude, listing.longitude
+                ), 1
+            )
 
-        # Sort by distance
+        # Sort listings by nearest
         available_listings.sort(key=lambda x: x.distance)
 
-        # Get user's requests
-        requests = FoodRequest.query.filter_by(recipient_id=user.id).all()
+        # Get user's own requests (to display below if needed)
+        requests = (
+            FoodRequest.query
+            .filter_by(recipient_id=user.id)
+            .all()
+        )
 
         return render_template(
             'dashboard_recipient.html',
@@ -355,6 +366,7 @@ def dashboard():
             listings=available_listings,
             requests=requests
         )
+
 
 
 @app.route('/create_listing', methods=['GET', 'POST'])
